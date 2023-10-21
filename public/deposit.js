@@ -1,6 +1,11 @@
 function Deposit(){
   const [show, setShow]     = React.useState(true);
   const [status, setStatus] = React.useState('');  
+  const [deposit, setDeposit] = React.useState(null); // Initialize deposit as null
+
+  function updateDeposit(newDeposit) {
+    setDeposit(newDeposit);
+  }
 
   return (
     <Card
@@ -8,15 +13,16 @@ function Deposit(){
       header="Deposit"
       status={status}
       body={show ? 
-        <DepositForm setShow={setShow} setStatus={setStatus}/> :
-        <DepositMsg setShow={setShow} setStatus={setStatus}/>}
+        <DepositForm setShow={setShow} setStatus={setStatus} updateDeposit={updateDeposit} /> :
+        <DepositMsg setShow={setShow} setStatus={setStatus} deposit={deposit} />}
     />
   )
 }
 
 function DepositMsg(props){
   return (<>
-    <h5>Success</h5>
+     <h5>Deposit submitted:</h5>
+      <p>${props.deposit}</p>
     <button type="submit" 
       className="btn btn-light" 
       onClick={() => {
@@ -38,9 +44,10 @@ function DepositForm(props){
     .then(text => {
         try {
             const data = JSON.parse(text);
-            props.setStatus(JSON.stringify(data.value));
+            //props.setStatus(JSON.stringify(data.value));
             props.setShow(false);
-            console.log('JSON:', data);
+            props.updateDeposit(amount); // Update deposit value
+            console.log('JSON:', data.value);
         } catch(err) {
             props.setStatus('Deposit failed')
             console.log('err:', text);

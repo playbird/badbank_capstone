@@ -1,7 +1,6 @@
 require('dotenv').config()
 const { MongoClient } = require('mongodb');
 const password = process.env.MONGODB_PWD;
-// console.log(password);
 
  let uri =
   `mongodb+srv://bornonthefirstofmay:${password}@cluster0.yloiqev.mongodb.net/`;
@@ -44,12 +43,11 @@ function find(email){
 }
 
 // find user account
-function findOne(email, password){
+function findOne(email){
     return new Promise((resolve, reject) => {    
         db
             .collection('users')
             .findOne({email: email})
-            .findOne({password: password})
             .then((doc) => resolve(doc))
             .catch((err) => reject(err));    
     })
