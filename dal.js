@@ -1,9 +1,10 @@
 require('dotenv').config()
 const { MongoClient } = require('mongodb');
 const password = process.env.MONGODB_PWD;
+const username = process.env.MONGO_USERNAME;
 
  let uri =
-  `mongodb+srv://bornonthefirstofmay:${password}@cluster0.yloiqev.mongodb.net/`;
+  `mongodb+srv://${username}:${password}@cluster0.yloiqev.mongodb.net/`;
 let db = null;
  
 // Connect to MongoDB using promises

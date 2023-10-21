@@ -5,7 +5,8 @@
   "main": "index.js",
   "proxy": "localhost:3001",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node index.js"
   },
   "author": "bornonthefirstofmay@gmail.com",
   "license": "MIT",
