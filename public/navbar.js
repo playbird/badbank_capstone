@@ -29,7 +29,7 @@ function NavBar(){
           </li>       
         </ul>
       </div>
-    <div id="currentlogin">{props.data.email}</div>
+    <div id="currentlogin"></div>
   
     </nav>
 

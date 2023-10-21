@@ -85,5 +85,3 @@ function activeLogin(activeEmail) {
   //   }
   //   while (i < data.length);
 }
-
-export default activeEmail;

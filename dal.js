@@ -1,17 +1,22 @@
+require('dotenv').config()
 const { MongoClient } = require('mongodb');
-const password = encodeURIComponent("vkZRyPTce1DOuAGb");
+const password = process.env.MONGODB_PWD;
+// console.log(password);
 
-let uri =
+ let uri =
   `mongodb+srv://bornonthefirstofmay:${password}@cluster0.yloiqev.mongodb.net/`;
 let db = null;
  
-// connect to mongo
-MongoClient.connect(uri, {useUnifiedTopology: true}, function(err, client) {
+// Connect to MongoDB using promises
+MongoClient.connect(uri, { useUnifiedTopology: true })
+  .then((client) => {
     console.log("Connected successfully to db server");
-
-    // connect to myproject database
+    // Set the 'db' variable after the connection is established
     db = client.db('myproject');
-});
+  })
+  .catch((err) => {
+    console.error('Error connecting to the database:', err);
+  });
 
 // create user account
 function create(name, email, password){
