@@ -57,7 +57,7 @@ function findOne(email){
 // update - deposit/withdraw amount
 function update(email, amount){
     return new Promise((resolve, reject) => {    
-        const customers = db
+    db
             .collection('users')            
             .findOneAndUpdate(
                 {email: email},
@@ -93,7 +93,7 @@ function updateUser(userId, params) {
 // all users
 function all(){
     return new Promise((resolve, reject) => {    
-        const customers = db
+        db
             .collection('users')
             .find({})
             .toArray(function(err, docs) {
