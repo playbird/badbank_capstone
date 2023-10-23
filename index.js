@@ -3,6 +3,8 @@ var app     = express();
 var cors    = require('cors');
 var dal     = require('./dal.js');
 const PORT = process.env.PORT || 4000
+console.log(PORT);
+console.log('--------------');
 
 // used to serve static files from public directory
 app.use(express.static('public'));
