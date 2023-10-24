@@ -1,25 +1,27 @@
-function CreateAccount(){
-  const [show, setShow]     = React.useState(true);
-  const [status, setStatus] = React.useState('');
+// Initialize Firebase with the configuration
+firebase.initializeApp(firebaseConfig);
 
+function CreateAccount() {
+  const [show, setShow] = React.useState(true);
+  const [status, setStatus] = React.useState('');
 
   return (
     <Card
       bgcolor="primary"
       header="Create Account"
       status={status}
-      body={show ? 
-        <CreateForm setShow={setShow}/> : 
-        <CreateMsg setShow={setShow}/>}
+      body={show ?
+        <CreateForm setShow={setShow} /> :
+        <CreateMsg setShow={setShow} />}
     />
   )
 }
 
-function CreateMsg(props){
-  return(<>
+function CreateMsg(props) {
+  return (<>
     <h5>Success</h5>
-    <button type="submit" 
-      className="btn btn-light" 
+    <button type="submit"
+      className="btn btn-light"
       onClick={() => props.setShow(true)}>Add another account</button>
   </>);
 }
@@ -28,38 +30,37 @@ function CreateForm(props) {
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [status, setStatus] = React.useState(''); // Add status state for error messages
+  const [status, setStatus] = React.useState('');
 
-  function handle() {
-    // Reset status message
+  async function handle() {
+    const auth = firebase.auth();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+/;
+
     setStatus('');
 
-    // Email validation using a simple regular expression
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // Password validation
     if (!emailRegex.test(email)) {
       setStatus('Error: Please enter a valid email address');
     } else if (password.length < 8) {
       setStatus('Error: Password must be at least 8 characters long');
     } else {
-      // Validation passed, make the API request
-      const url = `/account/create/${name}/${email}/${password}`;
-      (async () => {
-        var res = await fetch(url);
-        var data = await res.json();
-        console.log(data);
-        // Check if the creation was successful and set status accordingly
-        if (data.success) {
-          setStatus('Account created successfully');
-          setTimeout(() => {
-            setStatus('');
-            props.setShow(false);
-          }, 3000);
-        } else {
-          setStatus('Error: ' + data.message);
-        }
-      })();
+      try {
+        // Use createUserWithEmailAndPassword method to create a user
+        await auth.createUserWithEmailAndPassword(email, password);
+
+        // Get the currently signed-in user
+        const user = auth.currentUser;
+
+        // Handle success here, e.g., you can access user for the registered user.
+        console.log('User registered:', user);
+
+        setStatus('Account created successfully');
+        setTimeout(() => {
+          setStatus('');
+          props.setShow(false);
+        }, 3000);
+      } catch (error) {
+        setStatus('Error: ' + error.message);
+      }
     }
   }
 
@@ -95,9 +96,8 @@ function CreateForm(props) {
       <button type="submit" className="btn btn-light" onClick={handle}>
         Create Account
       </button>
-      
-      {/* Display error or success message */}
-      {status && <p className="text-danger mt-3">{status}</p>}
+
+      {status && <p>{status}</p>}
     </>
   );
 }

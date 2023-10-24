@@ -7,7 +7,10 @@ console.log(PORT);
 console.log('--------------');
 
 // used to serve static files from public directory
-app.use(express.static('public'));
+// app.use(express.static('public'));
+// Use this line to serve ES6 module files with .mjs extension
+app.use(express.static('public', { extensions: ['html', 'js', 'mjs'] }));
+
 app.use(cors());
 
 app.get("/",(req,res)=>{
@@ -114,6 +117,7 @@ app.get('/account/all', function (req, res) {
     });
 });
 
-app.listen(PORT), function() {
- console.log('Running on port: ' + PORT);   
-};
+app.listen(PORT, function() {
+    console.log('Running on port: ' + PORT);   
+   });
+   
