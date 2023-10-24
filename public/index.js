@@ -1,5 +1,3 @@
-import React, {useState, useEffect} from 'react';
-
 function Spa() {
   const [data, setData]     = React.useState('');
   
