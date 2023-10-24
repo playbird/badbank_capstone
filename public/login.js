@@ -1,7 +1,7 @@
 function Login(){
   const [show, setShow]     = React.useState(true);
   const [status, setStatus] = React.useState('');  
-  const [data,setData] = React.useState('log in')  
+  const [data, setData] = React.useState('log in')  
 
   return (
     <Card

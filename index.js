@@ -2,7 +2,7 @@ var express = require('express');
 var app     = express();
 var cors    = require('cors');
 var dal     = require('./dal.js');
-const PORT = process.env.PORT || 4000
+const PORT = process.env.PORT || 4000;
 console.log(PORT);
 console.log('--------------');
 
