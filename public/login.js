@@ -26,31 +26,38 @@ function LoginMsg(props){
   </>);
 }
 
-function handle() {
-  fetch(`/account/login/${email}/${password}`)
-    .then((response) => response.text())
-    .then((text) => {
-      try {
-        const data = JSON.parse(text);
-        props.setStatus('');
-        props.setShow(false);
-        console.log('JSON:', data);
+function LoginForm(props){
+  const [email, setEmail]       = React.useState('');
+  const [password, setPassword] = React.useState('');
 
-        // Assuming 'create' function inserts data into MongoDB
-        create(data.name, data.email, data.password) // Call the create function to add the user to the database
-          .then((insertedUser) => {
-            console.log('User inserted into MongoDB:', insertedUser);
-          })
-          .catch((err) => {
-            console.error('Error inserting user into MongoDB:', err);
-          });
+  function handle() {
+    fetch(`/account/login/${email}/${password}`)
+      .then((response) => response.text())
+      .then((text) => {
+        try {
+          const data = JSON.parse(text);
+          props.setStatus('');
+          props.setShow(false);
+          console.log('JSON:', data);
+  
+          // Assuming 'create' function inserts data into MongoDB
+          create(data.name, data.email, data.password) // Call the create function to add the user to the database
+            .then((insertedUser) => {
+              console.log('User inserted into MongoDB:', insertedUser);
+            })
+            .catch((err) => {
+              console.error('Error inserting user into MongoDB:', err);
+            });
+  
+          setData(data);
+        } catch (err) {
+          // Handle parsing error
+          console.log('err:', text);
+        }
+      });
+  }
+  
 
-        setData(data);
-      } catch (err) {
-        // Handle parsing error
-        console.log('err:', text);
-      }
-    });
 
   return (<>
 
