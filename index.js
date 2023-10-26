@@ -118,6 +118,5 @@ app.get('/account/all', function (req, res) {
 });
 
 app.listen(PORT, function() {
-    console.log('Running on port: ' + PORT);   
-   });
-   
+ console.log('Running on port: ' + PORT);   
+});

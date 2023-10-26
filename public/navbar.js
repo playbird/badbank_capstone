@@ -1,5 +1,27 @@
-function NavBar(){
-  
+function NavBar() {
+  const [user, setUser] = React.useState(null);
+
+  const handleSignOut = () => {
+    const auth = firebase.auth();
+    auth.signOut().then(() => {
+      setUser(null); // Set the user to null after sign out
+    });
+  };
+
+  React.useEffect(() => {
+    const auth = firebase.auth();
+
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
+        setUser(authUser);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
   return(
 
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -29,9 +51,18 @@ function NavBar(){
           </li>       
         </ul>
       </div>
-    <div id="currentlogin"></div>
-  
+      <div id="currentlogin">
+        {user ? (
+          <div>
+            <p>Current User: {user.email}</p>
+            <button className="btn btn-light" onClick={handleSignOut}>
+              Sign Out
+            </button>
+          </div>
+        ) : (
+          <div>No user logged in</div>
+        )}
+      </div>
     </nav>
-
   );
 }

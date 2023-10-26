@@ -19,33 +19,17 @@ MongoClient.connect(uri, { useUnifiedTopology: true })
     console.error('Error connecting to the database:', err);
   });
 
-  function create(name, email, password) {
-    return new Promise(async (resolve, reject) => {
-      const auth = getAuth(app); // Ensure you get the Firebase auth instance from the initialized app
-  
-      // First, create the user in Firebase Authentication
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        reject('Firebase Error: ' + error.message);
-        return;
-      }
-  
-      // If Firebase user creation is successful, insert the user into MongoDB
-      const collection = db.collection('users');
-      const doc = { name, email, password, balance: 0 };
-  
-      collection.insertOne(doc, { w: 1 }, function (err, result) {
-        if (err) {
-          console.error('MongoDB Insert Error:', err); // Log MongoDB error
-          reject('MongoDB Error: ' + err.message);
-        } else {
-          // If both Firebase and MongoDB operations are successful, resolve with the user document
-          resolve(result.ops[0]);
-        }
-      });
-    });
-  }
+// create user account
+function create(name, email, password){
+    return new Promise((resolve, reject) => {    
+        const collection = db.collection('users');
+        const doc = {name, email, password, balance: 0};
+        collection.insertOne(doc, {w:1}, function(err, result) {
+            // result.insertedId might be useful for future features
+            err ? reject(err) : resolve(doc);
+        });    
+    })
+}
 
 // find user account
 // returns one user record or undefined

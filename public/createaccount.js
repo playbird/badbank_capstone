@@ -4,6 +4,9 @@ firebase.initializeApp(firebaseConfig);
 function CreateAccount() {
   const [show, setShow] = React.useState(true);
   const [status, setStatus] = React.useState('');
+  const [name, setName] = React.useState(''); // Local state for name
+  const [email, setEmail] = React.useState(''); // Local state for email
+  const [password, setPassword] = React.useState(''); // Local state for password
 
   return (
     <Card
@@ -11,10 +14,9 @@ function CreateAccount() {
       header="Create Account"
       status={status}
       body={show ?
-        <CreateForm setShow={setShow} /> :
+        <CreateForm setShow={setShow} name={name} email={email} password={password} setName={setName} setEmail={setEmail} setPassword={setPassword} /> :
         <CreateMsg setShow={setShow} />}
-    />
-  )
+    />)
 }
 
 function CreateMsg(props) {
@@ -27,40 +29,91 @@ function CreateMsg(props) {
 }
 
 function CreateForm(props) {
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [status, setStatus] = React.useState('');
+  const auth = firebase.auth();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+/;
+
+  // Extract data from props
+  const { setShow } = props;
+
+  const [name, setName] = React.useState(''); // Local state for name
+  const [email, setEmail] = React.useState(''); // Local state for email
+  const [password, setPassword] = React.useState(''); // Local state for password
+  const [formStatus, setFormStatus] = React.useState(''); // Local status state
 
   async function handle() {
-    const auth = firebase.auth();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+/;
-
-    setStatus('');
+    setFormStatus(''); // Update status using local state
 
     if (!emailRegex.test(email)) {
-      setStatus('Error: Please enter a valid email address');
+      setFormStatus('Error: Please enter a valid email address');
     } else if (password.length < 8) {
-      setStatus('Error: Password must be at least 8 characters long');
+      setFormStatus('Error: Password must be at least 8 characters long');
     } else {
-      try {
-        // Use createUserWithEmailAndPassword method to create a user
-        await auth.createUserWithEmailAndPassword(email, password);
+      // Check if the user already exists in MongoDB
+      const userExists = await checkUserExistsInMongoDB(email);
 
-        // Get the currently signed-in user
-        const user = auth.currentUser;
+      if (userExists) {
+        setFormStatus('Error: User already exists');
+      } else {
+        try {
+          // Use createUserWithEmailAndPassword method to create a user
+          await auth.createUserWithEmailAndPassword(email, password);
 
-        // Handle success here, e.g., you can access user for the registered user.
-        console.log('User registered:', user);
+          // Get the currently signed-in user
+          const user = auth.currentUser;
 
-        setStatus('Account created successfully');
-        setTimeout(() => {
-          setStatus('');
-          props.setShow(false);
-        }, 3000);
-      } catch (error) {
-        setStatus('Error: ' + error.message);
+          // Handle success here, e.g., you can access user for the registered user.
+          console.log('User registered:', user);
+
+          // Add the user to MongoDB
+          await addUserToMongoDB(name, email, password);
+
+          setFormStatus('Account created successfully');
+          setTimeout(() => {
+            setFormStatus('');
+            setShow(false);
+          }, 3000);
+        } catch (error) {
+          setFormStatus('Error: ' + error.message);
+        }
       }
+    }
+  }
+
+  async function checkUserExistsInMongoDB(email) {
+    try {
+      const response = await fetch(`/account/find/${email}`);
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const user = await response.json();
+          // Check if the response contains valid data
+          if (user && Object.keys(user).length > 0) {
+            return true; // User exists
+          }
+        }
+        return false; // User doesn't exist (no valid data)
+      } else {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function addUserToMongoDB(name, email, password) {
+    try {
+      const response = await fetch(`/account/create/${name}/${email}/${password}`, {
+        method: 'GET', // Use GET method to create user
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        console.log('User added to MongoDB:', user);
+      } else {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -97,7 +150,7 @@ function CreateForm(props) {
         Create Account
       </button>
 
-      {status && <p>{status}</p>}
+      {formStatus && <p>{formStatus}</p>}
     </>
   );
 }

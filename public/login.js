@@ -1,3 +1,4 @@
+
 function Login(){
   const [show, setShow]     = React.useState(true);
   const [status, setStatus] = React.useState('');  
@@ -26,73 +27,53 @@ function LoginMsg(props){
   </>);
 }
 
-function LoginForm(props){
-  const [email, setEmail]       = React.useState('');
+function LoginForm(props) {
+  const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  function handle() {
-    fetch(`/account/login/${email}/${password}`)
-      .then((response) => response.text())
-      .then((text) => {
-        try {
-          const data = JSON.parse(text);
-          props.setStatus('');
-          props.setShow(false);
-          console.log('JSON:', data);
-  
-          // Assuming 'create' function inserts data into MongoDB
-          create(data.name, data.email, data.password) // Call the create function to add the user to the database
-            .then((insertedUser) => {
-              console.log('User inserted into MongoDB:', insertedUser);
-            })
-            .catch((err) => {
-              console.error('Error inserting user into MongoDB:', err);
-            });
-  
-          setData(data);
-        } catch (err) {
-          // Handle parsing error
-          console.log('err:', text);
-        }
-      });
+  async function handle() {
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      // Authentication succeeded; you can now access the authenticated user
+      const user = firebase.auth().currentUser;
+      if (user) {
+        // Add your logic here to handle the authenticated user
+        console.log('User authenticated:', user);
+
+        // Set your application state or perform other actions as needed
+        props.setStatus('');
+        props.setShow(false);
+      }
+    } catch (error) {
+      // Authentication failed
+      console.error('Authentication error:', error);
+      props.setStatus('Error: ' + error.message);
+    }
   }
-  
 
+  return (
+    <>
+      Email<br />
+      <input
+        type="input"
+        className="form-control"
+        placeholder="Enter email"
+        value={email}
+        onChange={(e) => setEmail(e.currentTarget.value)}
+      /><br />
 
-  return (<>
+      Password<br />
+      <input
+        type="password"
+        className="form-control"
+        placeholder="Enter password"
+        value={password}
+        onChange={(e) => setPassword(e.currentTarget.value)}
+      /><br />
 
-    Email<br/>
-    <input type="input" 
-      className="form-control" 
-      placeholder="Enter email" 
-      value={email} 
-      onChange={e => setEmail(e.currentTarget.value)}/><br/>
-
-    Password<br/>
-    <input type="password" 
-      className="form-control" 
-      placeholder="Enter password" 
-      value={password} 
-      onChange={e => setPassword(e.currentTarget.value)}/><br/>
-
-    <button type="submit" className="btn btn-light" onClick={handle}>Login</button>
-   
-  </>);
-}
-
-function activeLogin(activeEmail) {
-  const [current, setCurrent] = React.useState('');
-  setCurrent(activeEmail);
-  // console.log(data.email);
-  // console.log(activeEmail);
-  //   do {  
-  //     if (data[i].email == activeEmail) {
-  //       console.log(data[i].email);
-  //       console.log(activeEmail);
-  //       setCurrent(activeEmail);
-  //       return
-  //       }
-  //     i++; 
-  //   }
-  //   while (i < data.length);
+      <button type="submit" className="btn btn-light" onClick={handle}>
+        Login
+      </button>
+    </>
+  );
 }
