@@ -19,34 +19,33 @@ MongoClient.connect(uri, { useUnifiedTopology: true })
     console.error('Error connecting to the database:', err);
   });
 
-function create(name, email, password) {
-  return new Promise(async (resolve, reject) => {
-    const auth = firebase.auth(); // Assuming you have the Firebase auth instance available
-
-    // First, create the user in Firebase Authentication
-    try {
-      await auth.createUserWithEmailAndPassword(email, password);
-    } catch (error) {
-      reject('Firebase Error: ' + error.message);
-      return;
-    }
-
-    // If Firebase user creation is successful, insert the user into MongoDB
-    const collection = db.collection('users');
-    const doc = { name, email, password, balance: 0 };
-
-    collection.insertOne(doc, { w: 1 }, function (err, result) {
-      if (err) {
-        // If there's an error inserting into MongoDB, you might want to handle it
-        // E.g., you can delete the Firebase user to maintain consistency.
-        reject('MongoDB Error: ' + err.message);
-      } else {
-        // If both Firebase and MongoDB operations are successful, resolve with the user document
-        resolve(result.ops[0]);
+  function create(name, email, password) {
+    return new Promise(async (resolve, reject) => {
+      const auth = getAuth(app); // Ensure you get the Firebase auth instance from the initialized app
+  
+      // First, create the user in Firebase Authentication
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        reject('Firebase Error: ' + error.message);
+        return;
       }
+  
+      // If Firebase user creation is successful, insert the user into MongoDB
+      const collection = db.collection('users');
+      const doc = { name, email, password, balance: 0 };
+  
+      collection.insertOne(doc, { w: 1 }, function (err, result) {
+        if (err) {
+          console.error('MongoDB Insert Error:', err); // Log MongoDB error
+          reject('MongoDB Error: ' + err.message);
+        } else {
+          // If both Firebase and MongoDB operations are successful, resolve with the user document
+          resolve(result.ops[0]);
+        }
+      });
     });
-  });
-}
+  }
 
 // find user account
 // returns one user record or undefined
