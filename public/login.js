@@ -2,7 +2,6 @@
 function Login(){
   const [show, setShow]     = React.useState(true);
   const [status, setStatus] = React.useState('');  
-  const [data, setData] = React.useState('log in')  
 
   return (
     <Card
@@ -47,7 +46,7 @@ function LoginForm(props) {
     } catch (error) {
       // Authentication failed
       console.error('Authentication error:', error);
-      props.setStatus('Error: ' + error.message);
+      props.setStatus('Authorization error');
     }
   }
 

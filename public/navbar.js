@@ -54,10 +54,11 @@ function NavBar() {
       <div id="currentlogin">
         {user ? (
           <div>
-            <p>Current User: {user.email}</p>
+            <p>Current User:  {user.email}  
             <button className="btn btn-light" onClick={handleSignOut}>
               Sign Out
             </button>
+            </p>
           </div>
         ) : (
           <div>No user logged in</div>

@@ -39,19 +39,34 @@ function DepositForm(props){
   const [amount, setAmount] = React.useState('');
 
   function handle(){
-    fetch(`/account/update/${email}/${amount}`)
+    fetch(`/account/findOne/${email}`)
     .then(response => response.text())
     .then(text => {
-        try {
-            const data = JSON.parse(text);
-            //props.setStatus(JSON.stringify(data.value));
-            props.setShow(false);
-            props.updateDeposit(amount); // Update deposit value
-            console.log('JSON:', data.value);
-        } catch(err) {
-            props.setStatus('Deposit failed')
-            console.log('err:', text);
-        }
+      try {
+        const data = JSON.parse(text);
+        if(amount > 0){
+          fetch(`/account/update/${email}/${amount}`)
+          .then(response => response.text())
+          .then(text => {
+          try {
+              const data = JSON.parse(text);
+              //props.setStatus(JSON.stringify(data.value));
+              props.setShow(false);
+              props.updateDeposit(amount); // Update deposit value
+              console.log('JSON:', data.value);
+          } catch(err) {
+              props.setStatus('Deposit failed')
+              console.log('err:', text);
+          }
+        });
+      } else {
+        props.setStatus('Deposit must be a positive value')
+      }
+      } catch (err) {
+        props.setStatus('error');
+        console.log('err:', text);
+      }
+    
     });
   }
 

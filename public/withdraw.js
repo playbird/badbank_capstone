@@ -38,22 +38,39 @@ function WithdrawForm(props){
   const [amount, setAmount] = React.useState('');
 
   function handle(){
-    fetch(`/account/update/${email}/-${amount}`)
+    fetch(`/account/findOne/${email}`)
     .then(response => response.text())
     .then(text => {
+      try {
+        const data = JSON.parse(text);
+        console.log('JSON:', data.balance);
+        if(data.balance < amount && amount > 0){
+          fetch(`/account/update/${email}/-${amount}`)
+          .then(response => response.text())
+          .then(text => {
         try {
             const data = JSON.parse(text);
-            // props.setStatus(JSON.stringify(data.value));
-            props.setShow(false);
-            props.updateWithdraw(amount); // Update withdraw value
+            console.log(data.value.balance);
+            if (data.value.balance < amount){
+              props.setStatus('Insufficient balance');
+            } else {
+              props.setShow(false);
+              props.updateWithdraw(amount); // Update withdraw value
+            }
             console.log('JSON:', data.value);
         } catch(err) {
             props.setStatus('Withdrawal failed')
             console.log('err:', text);
         }
+          });
+        }
+      } catch (err) {
+        props.setStatus('error');
+        console.log('err:', text);
+      }
     });
+    
   }
-
 
   return(<>
 
